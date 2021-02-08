@@ -25,14 +25,16 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.fhir.r4.core.QuestionnaireResponse
 
-abstract class QuestionnaireItemEditTextViewHolderFactory : QuestionnaireItemViewHolderFactory(R.layout.questionnaire_item_edit_text_view) {
+abstract class QuestionnaireItemEditTextViewHolderFactory : QuestionnaireItemViewHolderFactory(
+    R.layout.questionnaire_item_edit_text_view
+) {
     abstract override fun getQuestionnaireItemViewHolderDelegate():
-            QuestionnaireItemEditTextViewHolderDelegate
+        QuestionnaireItemEditTextViewHolderDelegate
 }
 
 abstract class QuestionnaireItemEditTextViewHolderDelegate(
-        private val rawInputType: Int,
-        private val isSingleLine: Boolean
+    private val rawInputType: Int,
+    private val isSingleLine: Boolean
 ) : QuestionnaireItemViewHolderDelegate {
     private lateinit var textInputLayout: TextInputLayout
     private lateinit var textInputEditText: TextInputEditText
