@@ -17,6 +17,7 @@
 package com.google.android.fhir.datacapture.views
 
 import android.text.InputType
+import com.google.android.material.textfield.TextInputLayout
 import com.google.fhir.r4.core.Decimal
 import com.google.fhir.r4.core.Extension
 import com.google.fhir.r4.core.QuestionnaireResponse
@@ -43,13 +44,8 @@ object QuestionnaireItemEditTextDecimalViewHolderFactory :
                 return answer?.value?.decimal?.value?.toString() ?: ""
             }
 
-            override fun validateMaxValue(extension: Extension, inputValue: String): Boolean {
-                println("decimal max value")
-                TODO("Not yet implemented")
-            }
-
-            override fun validateMinValue(extension: Extension, inputValue: String): Boolean {
-                TODO("Not yet implemented")
+            override fun validate(questionnaireItemViewItem: QuestionnaireItemViewItem, textInputLayout: TextInputLayout) {
+                //TO BE IMPLEMENTED
             }
         }
 }

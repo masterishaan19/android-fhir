@@ -17,7 +17,7 @@
 package com.google.android.fhir.datacapture.views
 
 import android.text.InputType
-import com.google.fhir.r4.core.Extension
+import com.google.android.material.textfield.TextInputLayout
 import com.google.fhir.r4.core.QuestionnaireResponse
 
 /**
@@ -53,11 +53,7 @@ class QuestionnaireItemEditTextStringViewHolderDelegate(
         return answer?.value?.stringValue?.value ?: ""
     }
 
-    override fun validateMaxValue(extension: Extension, inputValue: String): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun validateMinValue(extension: Extension, inputValue: String): Boolean {
-        TODO("Not yet implemented")
+    override fun validate(questionnaireItemViewItem: QuestionnaireItemViewItem, textInputLayout: TextInputLayout) {
+        //TO BE IMPLEMENTED
     }
 }
