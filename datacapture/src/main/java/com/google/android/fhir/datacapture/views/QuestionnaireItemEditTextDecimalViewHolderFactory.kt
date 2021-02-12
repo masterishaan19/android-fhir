@@ -17,9 +17,7 @@
 package com.google.android.fhir.datacapture.views
 
 import android.text.InputType
-import com.google.android.material.textfield.TextInputLayout
 import com.google.fhir.r4.core.Decimal
-import com.google.fhir.r4.core.Extension
 import com.google.fhir.r4.core.QuestionnaireResponse
 
 object QuestionnaireItemEditTextDecimalViewHolderFactory :
@@ -42,10 +40,6 @@ object QuestionnaireItemEditTextDecimalViewHolderFactory :
 
             override fun getText(answer: QuestionnaireResponse.Item.Answer.Builder?): String {
                 return answer?.value?.decimal?.value?.toString() ?: ""
-            }
-
-            override fun validate(questionnaireItemViewItem: QuestionnaireItemViewItem, textInputLayout: TextInputLayout) {
-                //TO BE IMPLEMENTED
             }
         }
 }

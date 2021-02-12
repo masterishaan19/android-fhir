@@ -17,7 +17,6 @@
 package com.google.android.fhir.datacapture.views
 
 import android.text.InputType
-import com.google.android.material.textfield.TextInputLayout
 import com.google.fhir.r4.core.QuestionnaireResponse
 
 /**
@@ -51,9 +50,5 @@ class QuestionnaireItemEditTextStringViewHolderDelegate(
 
     override fun getText(answer: QuestionnaireResponse.Item.Answer.Builder?): String {
         return answer?.value?.stringValue?.value ?: ""
-    }
-
-    override fun validate(questionnaireItemViewItem: QuestionnaireItemViewItem, textInputLayout: TextInputLayout) {
-        //TO BE IMPLEMENTED
     }
 }
