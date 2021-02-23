@@ -78,7 +78,7 @@ internal class QuestionnaireItemAdapter(
                 QuestionnaireItemViewHolderType.EDIT_TEXT_INTEGER
             QuestionnaireItemTypeCode.Value.DECIMAL ->
                 QuestionnaireItemViewHolderType.EDIT_TEXT_DECIMAL
-            else -> throw NotImplementedError("Question type $type not supported.")
+            else -> QuestionnaireItemViewHolderType.EDIT_TEXT_SINGLE_LINE
         }.value
 
     override fun getItemCount() = questionnaireItemViewItemList.size
