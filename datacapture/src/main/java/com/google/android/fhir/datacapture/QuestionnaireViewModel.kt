@@ -18,7 +18,7 @@ package com.google.android.fhir.datacapture
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.google.android.fhir.datacapture.enablement.EnablementEvaluator
+import com.google.android.fhir.datacapture.ResourceIndexer.EnablementEvaluator
 import com.google.android.fhir.datacapture.views.QuestionnaireItemViewItem
 import com.google.fhir.common.JsonFormat
 import com.google.fhir.r4.core.Canonical
