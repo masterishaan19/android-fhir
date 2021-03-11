@@ -24,10 +24,17 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import ca.uhn.fhir.context.FhirContext
 import com.google.android.fhir.FhirEngine
 import com.google.android.fhir.reference.FhirApplication.Companion.fhirEngine
+import com.google.android.material.snackbar.Snackbar
+import java.io.BufferedReader
+import java.io.IOException
 import java.io.InputStream
+import java.io.InputStreamReader
+import java.net.URL
+import kotlinx.coroutines.launch
 import org.hl7.fhir.r4.model.Resource
 import org.opencds.cqf.cql.execution.EvaluationResult
 
@@ -58,87 +65,80 @@ class CqlLoadActivity : AppCompatActivity() {
 
     val loadCqlLibButton = findViewById<Button>(R.id.load_cql_lib_button)
     loadCqlLibButton.setOnClickListener { v: View? ->
-      DownloadFhirResource().execute(cqlLibraryUrlInput.text.toString())
+      lifecycleScope.launch {
+        doInBackground(cqlLibraryUrlInput.text.toString())
+      }
     }
 
     val downloadFhirResourceButton = findViewById<Button>(R.id.download_fhir_resource_button)
     downloadFhirResourceButton.setOnClickListener { v: View? ->
-      DownloadFhirResource().execute(fhirResourceUrlInput.getText().toString())
+
+      lifecycleScope.launch {
+        doInBackground(fhirResourceUrlInput.getText().toString())
+      }
     }
 
     val evaluateButton = findViewById<Button>(R.id.evaluate_button)
     evaluateButton.setOnClickListener { v: View? ->
-      viewLifecycleOwner
-      EvaluateAncLibrary()
-        .execute(
-          libraryInput.getText().toString(),
+      lifecycleScope.launch {
+        doInBackground2(libraryInput.getText().toString(),
           contextInput.getText().toString(),
-          expressionInput.getText().toString()
+          expressionInput.getText().toString())
+      }
+    }
+  }
+
+  suspend fun doInBackground(vararg strings: String?): Void? {
+    var result: String? = ""
+    var stream: InputStream? = null
+    var resource: Resource? = null
+    try {
+      stream = URL(strings[0]).content as InputStream
+      val reader = BufferedReader(InputStreamReader(stream))
+      var line: String? = ""
+      while (line != null) {
+        result += line
+        line = reader.readLine()
+      }
+      val fhirContext = FhirContext.forR4()
+      resource = fhirContext.newJsonParser().parseResource(result) as Resource
+      fhirEngine!!.save<Resource>(resource)
+      Snackbar.make(
+          cqlLibraryUrlInput!!,
+          "Loaded " + resource.resourceType.name + " with ID " + resource!!.id,
+          Snackbar.LENGTH_SHORT
         )
+        .show()
+    } catch (e: IOException) {
+      e.printStackTrace()
+      Snackbar.make(cqlLibraryUrlInput!!, "Something went wrong...", Snackbar.LENGTH_SHORT).show()
     }
+    return null
   }
 
-  private inner class DownloadFhirResource : AsyncTask<String?, String?, Void?>() {
-    override fun doInBackground(vararg strings: String?): Void? {
-      var result: String? = ""
-      var stream: InputStream? = null
-      var resource: Resource? = null
-      //            try {
-      //                stream = URL(strings[0]).content as InputStream
-      //                val reader =
-      //                    BufferedReader(InputStreamReader(stream))
-      //                var line: String? = ""
-      //                while (line != null) {
-      //                    result += line
-      //                    line = reader.readLine()
-      //                }
-      //                val fhirContext = FhirContext.forR4()
-      //                resource = fhirContext.newJsonParser()
-      //                    .parseResource(result) as Resource
-      //                fhirEngine!!.save<Resource>(resource)
-      //                Snackbar.make(
-      //                    cqlLibraryUrlInput!!,
-      //                    "Loaded " + resource.resourceType.name + " with ID " + resource!!.id,
-      //                    Snackbar.LENGTH_SHORT)
-      //                    .show()
-      //            } catch (e: IOException) {
-      //                e.printStackTrace()
-      //                Snackbar.make(cqlLibraryUrlInput!!, "Something went wrong...",
-      //                    Snackbar.LENGTH_SHORT)
-      //                    .show()
-      //            }
-      return null
-    }
-  }
-
-  private inner class EvaluateAncLibrary : AsyncTask<String?, String?, EvaluationResult>() {
-    override fun doInBackground(vararg strings: String?): EvaluationResult {
-      return fhirEngine!!.evaluateCql(strings[0]!!, strings[1]!!, strings[2]!!)
-    }
-
-    override fun onPostExecute(result: EvaluationResult) {
-      val stringBuilder = StringBuilder()
-      for (libraryResult in result.libraryResults.values) {
-        for ((key, value) in libraryResult.expressionResults) {
-          stringBuilder.append("$key -> ")
-          if (value == null) {
-            stringBuilder.append("null")
-          } else if (MutableList::class.java.isAssignableFrom(value.javaClass)) {
-            for (listItem in value as List<*>) {
-              stringBuilder.append(
-                FhirContext.forR4().newJsonParser().encodeResourceToString(listItem as Resource?)
-              )
-            }
-          } else if (Resource::class.java.isAssignableFrom(value.javaClass)) {
+  suspend fun doInBackground2(vararg strings: String?) {
+    val result = fhirEngine!!.evaluateCql(strings[0]!!, strings[1]!!, strings[2]!!)
+    val stringBuilder = StringBuilder()
+    for (libraryResult in result.libraryResults.values) {
+      for ((key, value) in libraryResult.expressionResults) {
+        stringBuilder.append("$key -> ")
+        if (value == null) {
+          stringBuilder.append("null")
+        } else if (MutableList::class.java.isAssignableFrom(value.javaClass)) {
+          for (listItem in value as List<*>) {
             stringBuilder.append(
-              FhirContext.forR4().newJsonParser().encodeResourceToString(value as Resource)
+              FhirContext.forR4().newJsonParser().encodeResourceToString(listItem as Resource?)
             )
-          } else {
-            stringBuilder.append(value.toString())
           }
+        } else if (Resource::class.java.isAssignableFrom(value.javaClass)) {
+          stringBuilder.append(
+            FhirContext.forR4().newJsonParser().encodeResourceToString(value as Resource)
+          )
+        } else {
+          stringBuilder.append(value.toString())
         }
       }
-      evaluationResultTextView!!.text = stringBuilder.toString()
     }
+    evaluationResultTextView!!.text = stringBuilder.toString()
   }
 }

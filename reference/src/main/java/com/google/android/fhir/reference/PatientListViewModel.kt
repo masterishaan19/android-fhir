@@ -72,7 +72,7 @@ class PatientListViewModel(application: Application, private val fhirEngine: Fhi
     return liveObservations
   }
 
-  private fun getSearchResults(): List<Patient> {
+  suspend private fun getSearchResults(): List<Patient> {
     val searchResults: List<Patient> =
       fhirEngine
         .search()
